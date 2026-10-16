@@ -1,4 +1,7 @@
 __pycache__/
 *.py[cod]
-.DS_Store
-expedientes.json
+.venv/
+venv/
+.idea/
+.vscode/
+*.tmp
