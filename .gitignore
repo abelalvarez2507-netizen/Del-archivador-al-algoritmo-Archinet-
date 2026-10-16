@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.vscode/
+# Los expedientes locales pueden contener información sensible; no subirlos a GitHub.
+datos/expedientes.csv
