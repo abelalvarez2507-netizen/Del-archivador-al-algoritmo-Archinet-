@@ -1,72 +1,54 @@
-# ArchiNet — prototipo de mesa de partes digital
+# ArchiNet - versión 0.1
 
-Aplicación de escritorio académica en Python para registrar, validar, buscar, ordenar y almacenar expedientes.
+Aplicación inicial en Python para el registro de expedientes.
+
+## Qué incluye esta etapa
+
+- Ventana de escritorio construida con Tkinter.
+- Formulario con los campos básicos del expediente.
+- Validación de campos obligatorios.
+- Rechazo de códigos duplicados sin distinguir mayúsculas y minúsculas.
+- Organización inicial mediante listas paralelas.
+- Pruebas automáticas para el registro, los campos vacíos y los códigos repetidos.
+
+## Qué todavía no incluye
+
+Los registros se conservan solo en memoria mientras la aplicación está abierta. Si se cierra el programa, se pierden. La persistencia en JSON, la búsqueda por código, el ordenamiento y la validación de fechas se añadirán de forma gradual en próximos avances. No se debe presentar esta etapa como el prototipo completo.
 
 ## Requisitos
 
 - Python 3.10 o posterior.
-- Tkinter, que normalmente se incluye con las instalaciones estándar de Python para Windows.
+- Tkinter, normalmente incluido en la instalación estándar de Python para Windows.
 - No requiere paquetes externos.
 
-## Ejecutar en Windows con Visual Studio Code
+## Ejecutar en Windows
 
-1. Descomprime o abre la carpeta `ArchiNet` en Visual Studio Code.
-2. Abre una terminal en esa carpeta.
+1. Descomprime la carpeta.
+2. Abre una terminal dentro de la carpeta `ArchiNet_v0.1`.
 3. Ejecuta:
 
    ```powershell
-   py main.py
+   python main.py
    ```
 
-   Si el comando `py` no está disponible, prueba `python main.py`.
+## Ejecutar las pruebas
 
-4. Completa los campos del formulario. La fecha se ingresa en formato `AAAA-MM-DD`, por ejemplo `2026-10-16`.
-5. El botón **Registrar** valida la información y guarda el registro en `datos/expedientes.csv`.
-
-## Ejecutar las pruebas automatizadas
-
-Desde la carpeta `ArchiNet`, ejecuta:
+Desde la misma carpeta, ejecuta:
 
 ```powershell
-py -m unittest discover -s pruebas -v
+python -m unittest discover -s tests -v
 ```
 
-Las pruebas comprueban la validación de campos, la normalización del código, la detección de duplicados, la fecha, la búsqueda y el ordenamiento. No sustituyen las pruebas manuales de la interfaz.
+## Uso inicial de Git
 
-## Organización del proyecto
+Cuando se cree el repositorio del equipo en GitHub, abre una terminal en esta carpeta y sigue las instrucciones de configuración de Git de tu equipo. Los commits deben registrar avances reales; no se debe crear un historial ficticio.
 
-- `main.py`: inicia la aplicación y conecta los módulos.
-- `interfaz.py`: ventanas, formulario, botones y tabla con Tkinter.
-- `expedientes.py`: validación, búsqueda lineal y ordenamiento por selección.
-- `persistencia.py`: lectura y escritura de CSV.
-- `pruebas/test_expedientes.py`: pruebas automatizadas de la lógica.
-- `datos/`: carpeta destinada al archivo de registros.
-- `documentacion/`: documentos de apoyo del proyecto.
-
-## Decisiones y limitaciones actuales
-
-- Los registros de prueba deben ser ficticios; no ingreses datos personales reales.
-- Los códigos se comparan sin distinguir mayúsculas y minúsculas.
-- La ordenación usa el orden lexicográfico del código.
-- La fecha debe ser una fecha válida con formato `AAAA-MM-DD`.
-- El CSV se guarda localmente. Esta versión no incluye usuarios, permisos, copias de seguridad automáticas ni una base de datos multiusuario.
-- Este prototipo académico no reemplaza un sistema institucional completo.
-
-## Git: commits progresivos sugeridos
-
-Ejecuta cada bloque cuando el avance correspondiente esté listo; no es necesario crear todos los commits de una sola vez.
+Una vez configurados el nombre y el correo en Git, los primeros comandos serán:
 
 ```powershell
 git init
-git add README.md main.py interfaz.py expedientes.py persistencia.py pruebas
-git commit -m "Crea estructura inicial y lógica de expedientes"
+git add .
+git commit -m "Crear estructura inicial de ArchiNet y registro básico"
 ```
 
-Después de revisar y ejecutar la interfaz:
-
-```powershell
-git add main.py interfaz.py expedientes.py persistencia.py pruebas README.md
-git commit -m "Integra interfaz gráfica y persistencia CSV"
-```
-
-Crea el repositorio remoto en GitHub y sigue las instrucciones que GitHub muestre para conectar el repositorio local. No se ha creado ni publicado un repositorio remoto desde este paquete.
+Después se conectará el repositorio local con la URL real del repositorio creado por el equipo.

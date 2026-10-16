@@ -1,94 +1,56 @@
-"""Reglas de negocio para el prototipo ArchiNet.
+"""Funciones y estructuras iniciales para administrar expedientes de ArchiNet.
 
-Este módulo no depende de Tkinter; puede probarse de forma independiente.
+Esta primera etapa guarda los registros en memoria. El almacenamiento en JSON,
+la búsqueda y el ordenamiento se incorporarán en avances posteriores.
 """
 
-from datetime import datetime
-from typing import Iterable, Mapping
 
-CAMPOS = (
-    "codigo",
-    "nombre",
-    "tipo_doc_identidad",
-    "numero_doc_identidad",
-    "tipo_documento",
-    "asunto",
-    "fecha_recepcion",
-)
+class RepositorioExpedientes:
+    """Mantiene los datos en listas paralelas, una por cada campo del expediente."""
 
-ETIQUETAS = {
-    "codigo": "código del expediente",
-    "nombre": "nombre completo del ciudadano",
-    "tipo_doc_identidad": "tipo de documento de identidad",
-    "numero_doc_identidad": "número de documento de identidad",
-    "tipo_documento": "tipo de documento presentado",
-    "asunto": "asunto",
-    "fecha_recepcion": "fecha de recepción",
-}
+    def __init__(self):
+        self.codigos = []
+        self.ciudadanos = []
+        self.tipos_doc_identidad = []
+        self.numeros_doc_identidad = []
+        self.tipos_documento = []
+        self.asuntos = []
+        self.fechas_recepcion = []
 
+    def cantidad(self):
+        """Devuelve la cantidad de expedientes registrados en esta sesión."""
+        return len(self.codigos)
 
-def validar_expediente(
-    datos: Mapping[str, object], existentes: Iterable[Mapping[str, str]]
-) -> dict[str, str]:
-    """Devuelve una copia normalizada del expediente o lanza ValueError.
+    def registrar(self, codigo, ciudadano, tipo_doc_identidad,
+                  numero_doc_identidad, tipo_documento, asunto,
+                  fecha_recepcion):
+        """Registra un expediente con validaciones básicas.
 
-    Validaciones aplicadas:
-    - Ningún campo obligatorio puede estar vacío.
-    - El código se normaliza a mayúsculas y debe ser único.
-    - La fecha debe usar el formato AAAA-MM-DD y ser una fecha válida.
+        Raises:
+            ValueError: si falta un campo obligatorio o el código ya existe.
+        """
+        campos = [
+            codigo, ciudadano, tipo_doc_identidad, numero_doc_identidad,
+            tipo_documento, asunto, fecha_recepcion
+        ]
+        campos = [str(campo).strip() for campo in campos]
 
-    No se restringe la longitud ni el formato del documento de identidad porque
-    eso depende del tipo de documento y de las reglas que se definan para el caso.
-    """
-    limpio = {campo: str(datos.get(campo, "") or "").strip() for campo in CAMPOS}
+        if any(not campo for campo in campos):
+            raise ValueError("Completa todos los campos antes de registrar.")
 
-    faltantes = [ETIQUETAS[campo] for campo, valor in limpio.items() if not valor]
-    if faltantes:
-        raise ValueError("Completa los siguientes campos: " + ", ".join(faltantes) + ".")
+        (codigo, ciudadano, tipo_doc_identidad, numero_doc_identidad,
+         tipo_documento, asunto, fecha_recepcion) = campos
 
-    limpio["codigo"] = limpio["codigo"].upper()
+        if any(codigo_existente.casefold() == codigo.casefold()
+               for codigo_existente in self.codigos):
+            raise ValueError("Ya existe un expediente con ese código.")
 
-    try:
-        datetime.strptime(limpio["fecha_recepcion"], "%Y-%m-%d")
-    except ValueError as exc:
-        raise ValueError("La fecha debe ser válida y tener el formato AAAA-MM-DD (por ejemplo, 2026-10-16).") from exc
+        self.codigos.append(codigo)
+        self.ciudadanos.append(ciudadano)
+        self.tipos_doc_identidad.append(tipo_doc_identidad)
+        self.numeros_doc_identidad.append(numero_doc_identidad)
+        self.tipos_documento.append(tipo_documento)
+        self.asuntos.append(asunto)
+        self.fechas_recepcion.append(fecha_recepcion)
 
-    codigo_nuevo = limpio["codigo"]
-    for expediente in existentes:
-        codigo_existente = str(expediente.get("codigo", "")).strip().upper()
-        if codigo_existente == codigo_nuevo:
-            raise ValueError(f"El código {codigo_nuevo} ya está registrado.")
-
-    return limpio
-
-
-def buscar_por_codigo(
-    expedientes: Iterable[Mapping[str, str]], codigo: str
-) -> dict[str, str] | None:
-    """Busca linealmente un expediente por su código, sin distinguir mayúsculas."""
-    buscado = str(codigo or "").strip().upper()
-    if not buscado:
-        return None
-
-    for expediente in expedientes:
-        if str(expediente.get("codigo", "")).strip().upper() == buscado:
-            return dict(expediente)
-    return None
-
-
-def ordenar_por_codigo(
-    expedientes: Iterable[Mapping[str, str]],
-) -> list[dict[str, str]]:
-    """Devuelve una copia ordenada por código usando ordenamiento por selección."""
-    ordenados = [dict(expediente) for expediente in expedientes]
-    cantidad = len(ordenados)
-
-    for i in range(cantidad - 1):
-        indice_menor = i
-        for j in range(i + 1, cantidad):
-            if ordenados[j]["codigo"].upper() < ordenados[indice_menor]["codigo"].upper():
-                indice_menor = j
-        if indice_menor != i:
-            ordenados[i], ordenados[indice_menor] = ordenados[indice_menor], ordenados[i]
-
-    return ordenados
+        return "Expediente registrado correctamente en esta sesión."
