@@ -1,7 +1,7 @@
-__pycache__/
-*.py[cod]
 .venv/
 venv/
-.idea/
-.vscode/
-*.tmp
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# El JSON local puede contener datos personales.
+datos/expedientes.json

@@ -1,0 +1,11 @@
+@startuml
+actor Usuario
+rectangle "Interfaz Tkinter" as UI
+rectangle "Servicio de expedientes" as Servicio
+rectangle "Validaciones" as Validaciones
+database "Repositorio JSON" as JSON
+Usuario --> UI
+UI --> Servicio
+Servicio --> Validaciones
+Servicio --> JSON
+@enduml

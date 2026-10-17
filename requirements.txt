@@ -1,1 +1,1 @@
-# ArchiNet utiliza módulos de la biblioteca estándar de Python.
+# Sin dependencias externas. Tkinter y JSON forman parte de la biblioteca estándar de Python.

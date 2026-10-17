@@ -1,7 +1,7 @@
-"""Punto de entrada de ArchiNet. La lógica se encuentra en módulos separados."""
+"""Punto de entrada de ArchiNet."""
 
-from src.archinet.ui.app import ejecutar
+from interfaz.navegacion import iniciar
 
 
 if __name__ == "__main__":
-    ejecutar()
+    iniciar()
