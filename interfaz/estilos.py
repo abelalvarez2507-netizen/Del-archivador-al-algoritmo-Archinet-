@@ -1,5 +1,3 @@
-"""Colores y estilos básicos de la interfaz."""
-
 FONDO = "#f3f6fa"
 BLANCO = "#ffffff"
 AZUL = "#174a7e"

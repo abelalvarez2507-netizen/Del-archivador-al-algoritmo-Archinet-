@@ -1,5 +1,3 @@
-"""Formulario para registrar un expediente."""
-
 import tkinter as tk
 from tkinter import ttk
 

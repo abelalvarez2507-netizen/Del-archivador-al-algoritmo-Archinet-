@@ -1,5 +1,3 @@
-"""Estructura de datos de un expediente."""
-
 from dataclasses import asdict, dataclass
 
 

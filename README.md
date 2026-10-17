@@ -35,18 +35,14 @@ ArchiNet/
 │   ├── operaciones_listas.py
 │   ├── servicio_expedientes.py
 │   └── repositorio_json.py
-├── pruebas/
 ├── datos/
 │   └── expedientes.json
-├── docs/
-│   ├── diagramas/
-│   └── evidencias/
 ├── main.py
 ├── requirements.txt
 └── README.md
 ```
 
-La interfaz solicita las operaciones al servicio de expedientes. El servicio valida y coordina los datos con el repositorio JSON; la interfaz no escribe directamente en el archivo. El almacenamiento utiliza registros JSON y el servicio mantiene los expedientes en una colección mientras la aplicación está abierta.
+La interfaz solicita las operaciones al servicio de expedientes. El servicio valida y coordina los datos con el repositorio JSON; la interfaz no escribe directamente en el archivo.
 
 ## 3. Instalación
 
@@ -70,17 +66,8 @@ python main.py
 
 La ventana principal permite cambiar entre Registro, Búsqueda y Listado. Los datos se guardan en `datos/expedientes.json` al registrar un expediente.
 
-## 5. Pruebas automatizadas
-
-Las pruebas usan `pytest`, que es una dependencia de desarrollo y no es necesaria para ejecutar la aplicación. Para instalarla y correr las pruebas:
-
-```powershell
-python -m pip install pytest
-python -m pytest pruebas/
-```
-
-## 6. Datos locales
+## 5. Datos locales
 
 El archivo `datos/expedientes.json` puede contener información personal y está excluido de Git mediante `.gitignore`. Mantén una copia de respaldo adecuada de los datos que necesites conservar.
 
-ArchiNet es un prototipo académico. Sus funciones y documentación se ampliarán conforme avance el desarrollo.
+ArchiNet es un prototipo académico. Sus funciones se ampliarán conforme avance el desarrollo.

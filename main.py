@@ -1,5 +1,3 @@
-"""Punto de entrada de ArchiNet."""
-
 from interfaz.navegacion import iniciar
 
 

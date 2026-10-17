@@ -1,5 +1,3 @@
-"""Listado de expedientes ordenado por código."""
-
 import tkinter as tk
 from tkinter import ttk
 

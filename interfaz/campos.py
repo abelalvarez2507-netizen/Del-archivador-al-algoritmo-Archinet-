@@ -1,5 +1,3 @@
-"""Construcción de campos del formulario."""
-
 import tkinter as tk
 from tkinter import ttk
 

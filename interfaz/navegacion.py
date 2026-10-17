@@ -1,5 +1,3 @@
-"""Ventana principal y navegación de ArchiNet."""
-
 import tkinter as tk
 from tkinter import ttk
 

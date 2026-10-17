@@ -1,5 +1,3 @@
-"""Persistencia JSON local de los expedientes."""
-
 import json
 from pathlib import Path
 

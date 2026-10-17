@@ -1,5 +1,3 @@
-"""Búsqueda de expediente por código."""
-
 import tkinter as tk
 from tkinter import ttk
 

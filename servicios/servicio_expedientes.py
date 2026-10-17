@@ -1,5 +1,3 @@
-"""Coordinación entre validaciones, operaciones y repositorio."""
-
 from modelos.expediente import Expediente
 from servicios import operaciones_listas, repositorio_json, validaciones
 

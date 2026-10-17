@@ -1,5 +1,3 @@
-"""Validaciones de los datos de expediente."""
-
 from datetime import date
 
 TIPOS_IDENTIDAD = ("DNI", "Carné de extranjería", "Pasaporte")

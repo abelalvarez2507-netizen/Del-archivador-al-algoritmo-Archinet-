@@ -1,5 +1,3 @@
-"""Ventanas de confirmación y error."""
-
 from tkinter import messagebox
 
 
