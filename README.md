@@ -2,23 +2,20 @@
 
 ## Sistema de gestión de expedientes
 
-ArchiNet es una aplicación de escritorio académica desarrollada en Python para registrar, buscar y consultar expedientes. Utiliza Tkinter para la interfaz gráfica y archivos JSON para guardar la información. Es un proyecto independiente.
+ArchiNet es una aplicación de escritorio académica desarrollada en Python para registrar, buscar y consultar expedientes. Utiliza Tkinter para la interfaz gráfica y JSON para guardar la información.
 
 ## 1. Funcionalidades
 
-- Registro de expedientes con código, nombre completo, tipo y número de documento de identidad, documento presentado, asunto y fecha de recepción.
-- Código de expediente asignado automáticamente: `EXP001`, `EXP002` y siguientes.
-- Códigos de documento por bloque, con numeración independiente: Carta (`BOG001`), Solicitud (`BEN001`) y Formulario (`ARD001`). Para «Otro», se toman las primeras tres letras del tipo especificado y se agrega el siguiente número.
-- Código de paciente automático (`PAC001`, `PAC002`...) y reutilizable: los expedientes con el mismo tipo y número de identidad comparten el mismo código.
+- Registro de expedientes con código automático, datos de identidad, tipo de documento, asunto y recepción.
+- Códigos independientes por bloque: Carta (`BOG001`), Solicitud (`BEN001`), Formulario (`ARD001`) y prefijo personalizado para «Otro».
 - Validación de DNI de 8 dígitos, carné de extranjería de 9 dígitos y pasaporte alfanumérico de 6 a 9 caracteres.
-- Fecha y hora de recepción asignadas automáticamente al guardar, con formatos `DD/MM/AAAA` y `HH:MM:SS`.
-- Validación de campos obligatorios, tipos permitidos y fecha actual.
-- Búsqueda de expedientes por código de expediente o de paciente.
-- Consulta de expedientes en una lista ordenada por código.
-- Almacenamiento local en JSON con codificación UTF-8 para conservar tildes y otros caracteres.
-- Interfaz gráfica organizada en las secciones Registro, Búsqueda y Listado.
+- Fecha y hora de recepción automáticas, en formatos `DD/MM/AAAA` y `HH:MM:SS`.
+- Adjuntar archivos Word, PDF e imágenes de documentos escaneados.
+- Búsqueda por código de expediente y listado ordenado.
+- Barra vertical a la derecha en cada pantalla, con desplazamiento desde la barra, rueda y touchpad.
+- Almacenamiento JSON en UTF-8.
 
-Los tipos de identidad disponibles son DNI, carné de extranjería y pasaporte. La fecha y la hora se registran automáticamente al guardar; no se pueden editar ni programar fechas pasadas o futuras. Para «Otro», el código se forma con las primeras tres letras del tipo especificado, sin contar tildes, más una numeración de tres o más dígitos.
+Los archivos adjuntos se copian a `datos/adjuntos/`, dentro de una carpeta para cada expediente. Se admiten DOC, DOCX, ODT, RTF, PDF, PNG, JPG, JPEG, TIF, TIFF, BMP, GIF y WEBP.
 
 ## 2. Arquitectura
 
@@ -28,6 +25,7 @@ ArchiNet/
 │   ├── pantalla_registro.py
 │   ├── pantalla_busqueda.py
 │   ├── pantalla_listado.py
+│   ├── desplazamiento.py
 │   ├── campos.py
 │   ├── estilos.py
 │   └── navegacion.py
@@ -39,20 +37,19 @@ ArchiNet/
 │   ├── validaciones.py
 │   ├── operaciones_listas.py
 │   ├── generador_codigos.py
+│   ├── archivos_adjuntos.py
 │   ├── servicio_expedientes.py
 │   └── repositorio_json.py
 ├── pruebas/
-│   ├── test_generador_codigos.py
-│   ├── test_validaciones.py
-│   └── test_servicio_expedientes.py
 ├── datos/
-│   └── expedientes.json
+│   ├── expedientes.json
+│   └── adjuntos/
 ├── main.py
 ├── requirements.txt
 └── README.md
 ```
 
-La interfaz solicita las operaciones al servicio de expedientes. El servicio valida y coordina los datos con el repositorio JSON; la interfaz no escribe directamente en el archivo.
+La interfaz solicita las operaciones al servicio de expedientes. El servicio valida los datos, genera códigos y coordina el guardado JSON y la copia de archivos adjuntos.
 
 ## 3. Instalación
 
@@ -64,8 +61,6 @@ py -m venv .venv
 python -c "import tkinter; print('Tkinter disponible')"
 ```
 
-En Linux, instala el paquete de Tkinter de la distribución si no está incluido con Python.
-
 ## 4. Ejecución
 
 Desde la carpeta raíz del proyecto, ejecuta:
@@ -74,19 +69,16 @@ Desde la carpeta raíz del proyecto, ejecuta:
 python main.py
 ```
 
-La ventana principal permite cambiar entre Registro, Búsqueda y Listado. Los datos se guardan en `datos/expedientes.json` al registrar un expediente.
+La fecha y la hora se asignan automáticamente al registrar. No se pueden editar ni seleccionar fechas pasadas o futuras.
 
 ## 5. Datos locales
 
-El archivo `datos/expedientes.json` puede contener información personal y está excluido de Git mediante `.gitignore`. Mantén una copia de respaldo adecuada de los datos que necesites conservar.
-
-ArchiNet es un prototipo académico. Sus funciones se ampliarán conforme avance el desarrollo.
+`datos/expedientes.json` y `datos/adjuntos/` pueden contener información personal; están excluidos de Git mediante `.gitignore`.
 
 ## 6. Pruebas
 
-Para ejecutar las pruebas automatizadas, instala `pytest` en el entorno de desarrollo y ejecuta:
+Con `pytest` instalado en el entorno de desarrollo, ejecuta:
 
 ```powershell
-python -m pip install pytest
 python -m pytest pruebas/
 ```

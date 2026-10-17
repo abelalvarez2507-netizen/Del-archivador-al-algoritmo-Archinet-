@@ -1,35 +1,47 @@
-import tkinter as tk
-from tkinter import ttk
 from datetime import datetime
+from pathlib import Path
+import tkinter as tk
+from tkinter import filedialog, ttk
 
 from componentes import mensajes
-from interfaz import campos
+from interfaz import campos, desplazamiento
 from servicios.servicio_expedientes import ServicioExpedientes
 from servicios.validaciones import TIPOS_IDENTIDAD, TIPOS_PRESENTADO
 
 
 class PantallaRegistro(ttk.Frame):
     def __init__(self, parent: tk.Widget, servicio: ServicioExpedientes) -> None:
-        super().__init__(parent, padding=28)
+        super().__init__(parent)
         self.servicio = servicio
+        self.marco = desplazamiento.MarcoDesplazable(self)
+        self.marco.pack(fill="both", expand=True)
+        self.archivos_seleccionados: list[str] = []
         self.variables = {nombre: tk.StringVar() for nombre in (
-            "codigo", "codigo_paciente", "nombre_completo", "tipo_documento_identidad", "numero_documento",
+            "codigo", "nombre_completo", "tipo_documento_identidad", "numero_documento",
             "tipo_documento_presentado", "tipo_documento_otro", "codigo_documento", "asunto",
             "fecha_recepcion", "hora_recepcion",
         )}
-        tarjeta = ttk.Frame(self, style="Card.TFrame", padding=26)
-        tarjeta.pack(fill="both", expand=True)
+        tarjeta = ttk.Frame(self.marco.interior, style="Card.TFrame", padding=26)
+        tarjeta.pack(fill="x", expand=True)
         ttk.Label(tarjeta, text="Registrar expediente", style="Title.TLabel").pack(anchor="w")
         ttk.Label(tarjeta, text="Ingresa los datos del documento recibido.", style="Hint.TLabel").pack(anchor="w", pady=(4, 20))
         formulario = ttk.Frame(tarjeta, style="Card.TFrame")
         formulario.pack(fill="x")
         formulario.columnconfigure(1, weight=1)
         self._fila_codigo(formulario, 0, "Código de expediente", "codigo")
-        self._fila_codigo(formulario, 1, "Código de paciente", "codigo_paciente")
-        campos.entrada(formulario, 2, "Nombre completo", self.variables["nombre_completo"])
-        campos.seleccion(formulario, 3, "Tipo de identidad", self.variables["tipo_documento_identidad"], TIPOS_IDENTIDAD)
-        campos.entrada_identidad(formulario, 4, "N.º de documento", self.variables["numero_documento"], self.variables["tipo_documento_identidad"])
-        campos.seleccion(formulario, 5, "Documento presentado", self.variables["tipo_documento_presentado"], TIPOS_PRESENTADO)
+        campos.entrada(formulario, 1, "Nombre completo", self.variables["nombre_completo"])
+        campos.seleccion(formulario, 2, "Tipo de identidad", self.variables["tipo_documento_identidad"], TIPOS_IDENTIDAD)
+        campos.entrada_identidad(formulario, 3, "N.º de documento", self.variables["numero_documento"], self.variables["tipo_documento_identidad"])
+        campos.seleccion(formulario, 4, "Documento presentado", self.variables["tipo_documento_presentado"], TIPOS_PRESENTADO)
+        ttk.Label(formulario, text="Archivos adjuntos").grid(row=5, column=0, sticky="nw", padx=(0, 16), pady=7)
+        zona_archivos = ttk.Frame(formulario, style="Card.TFrame")
+        zona_archivos.grid(row=5, column=1, sticky="ew", pady=7)
+        controles = ttk.Frame(zona_archivos, style="Card.TFrame")
+        controles.pack(fill="x")
+        ttk.Button(controles, text="Seleccionar archivos", command=self.seleccionar_archivos).pack(side="left")
+        ttk.Button(controles, text="Quitar seleccionado", command=self.quitar_archivo).pack(side="left", padx=(8, 0))
+        self.lista_archivos = tk.Listbox(zona_archivos, height=3, activestyle="none", borderwidth=0, highlightthickness=1)
+        self.lista_archivos.pack(fill="x", pady=(7, 0))
         self.etiqueta_otro = ttk.Label(formulario, text="Especifica el documento")
         self.etiqueta_otro.grid(row=6, column=0, sticky="w", padx=(0, 16), pady=7)
         self.entrada_otro = ttk.Entry(formulario, textvariable=self.variables["tipo_documento_otro"], width=38)
@@ -38,53 +50,43 @@ class PantallaRegistro(ttk.Frame):
         campos.entrada(formulario, 8, "Asunto", self.variables["asunto"])
         self._fila_codigo(formulario, 9, "Fecha de recepción", "fecha_recepcion")
         self._fila_codigo(formulario, 10, "Hora de recepción", "hora_recepcion")
-        self.variables["tipo_documento_identidad"].trace_add("write", self._tipo_identidad_cambio)
         self.variables["tipo_documento_presentado"].trace_add("write", self._actualizar_codigos)
         self.variables["tipo_documento_otro"].trace_add("write", self._actualizar_codigos)
-        self.variables["tipo_documento_identidad"].trace_add("write", self._actualizar_codigo_paciente)
-        self.variables["numero_documento"].trace_add("write", self._actualizar_codigo_paciente)
-        self._tipo_identidad_cambio()
         self._actualizar_codigos()
-        self._actualizar_codigo_paciente()
         self._actualizar_reloj()
         pie = ttk.Frame(tarjeta, style="Card.TFrame")
         pie.pack(fill="x", pady=(22, 0))
         ttk.Button(pie, text="Limpiar", command=self.limpiar).pack(side="right", padx=(8, 0))
         ttk.Button(pie, text="Registrar expediente", style="Accent.TButton", command=self.registrar).pack(side="right")
 
-    def limpiar(self) -> None:
-        for clave in ("nombre_completo", "tipo_documento_identidad", "numero_documento",
-                      "tipo_documento_presentado", "tipo_documento_otro", "asunto"):
-            self.variables[clave].set("")
-        self._actualizar_codigos()
-        self._actualizar_codigo_paciente()
-
     def _fila_codigo(self, contenedor: ttk.Frame, fila: int, etiqueta: str, clave: str) -> None:
         ttk.Label(contenedor, text=etiqueta).grid(row=fila, column=0, sticky="w", padx=(0, 16), pady=7)
         ttk.Entry(contenedor, textvariable=self.variables[clave], state="readonly", width=38).grid(row=fila, column=1, sticky="ew", pady=7)
 
-    def _tipo_identidad_cambio(self, *_args) -> None:
-        tipo = self.variables["tipo_documento_identidad"].get()
-        numero = self.variables["numero_documento"].get()
-        maximo = 8 if tipo == "DNI" else 9
-        if len(numero) > maximo:
-            self.variables["numero_documento"].set("")
-        elif tipo in ("DNI", "Carné de extranjería") and numero and not (numero.isascii() and numero.isdigit()):
-            self.variables["numero_documento"].set("")
-        elif tipo == "Pasaporte" and numero and not (numero.isascii() and numero.isalnum()):
-            self.variables["numero_documento"].set("")
+    def seleccionar_archivos(self) -> None:
+        tipos = [
+            ("Documentos compatibles", "*.doc *.docx *.odt *.rtf *.pdf *.png *.jpg *.jpeg *.tif *.tiff *.bmp *.gif *.webp"),
+            ("Todos los archivos", "*.*"),
+        ]
+        for ruta in filedialog.askopenfilenames(title="Adjuntar documentos", filetypes=tipos):
+            if ruta not in self.archivos_seleccionados:
+                self.archivos_seleccionados.append(ruta)
+                self.lista_archivos.insert(tk.END, Path(ruta).name)
 
-    def _actualizar_codigo_paciente(self, *_args) -> None:
-        tipo = self.variables["tipo_documento_identidad"].get()
-        numero = self.variables["numero_documento"].get()
-        if tipo == "DNI":
-            completo = len(numero) == 8 and numero.isascii() and numero.isdigit()
-        elif tipo == "Carné de extranjería":
-            completo = len(numero) == 9 and numero.isascii() and numero.isdigit()
-        else:
-            completo = tipo == "Pasaporte" and 6 <= len(numero) <= 9 and numero.isascii() and numero.isalnum()
-        codigo = self.servicio.codigo_paciente(tipo, numero) if completo else ""
-        self.variables["codigo_paciente"].set(codigo)
+    def quitar_archivo(self) -> None:
+        seleccion = self.lista_archivos.curselection()
+        if seleccion:
+            indice = seleccion[0]
+            self.lista_archivos.delete(indice)
+            self.archivos_seleccionados.pop(indice)
+
+    def limpiar(self) -> None:
+        for clave in ("nombre_completo", "tipo_documento_identidad", "numero_documento",
+                      "tipo_documento_presentado", "tipo_documento_otro", "asunto"):
+            self.variables[clave].set("")
+        self.archivos_seleccionados.clear()
+        self.lista_archivos.delete(0, tk.END)
+        self._actualizar_codigos()
 
     def _actualizar_reloj(self) -> None:
         ahora = datetime.now()
@@ -110,7 +112,8 @@ class PantallaRegistro(ttk.Frame):
 
     def registrar(self) -> None:
         try:
-            datos = {k: v.get() for k, v in self.variables.items()}
+            datos = {clave: variable.get() for clave, variable in self.variables.items()}
+            datos["archivos_adjuntos"] = list(self.archivos_seleccionados)
             expediente = self.servicio.registrar(datos)
         except (ValueError, OSError) as error:
             mensajes.error(str(error))

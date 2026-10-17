@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 # El JSON local puede contener datos personales.
 datos/expedientes.json
+datos/adjuntos/

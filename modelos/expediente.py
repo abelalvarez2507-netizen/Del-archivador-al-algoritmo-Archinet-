@@ -1,10 +1,10 @@
 from dataclasses import asdict, dataclass
+from typing import Any
 
 
 @dataclass
 class Expediente:
     codigo: str
-    codigo_paciente: str
     codigo_documento: str
     nombre_completo: str
     tipo_documento_identidad: str
@@ -14,6 +14,7 @@ class Expediente:
     asunto: str
     fecha_recepcion: str
     hora_recepcion: str
+    archivos_adjuntos: list[str]
 
-    def a_dict(self) -> dict[str, str]:
+    def a_dict(self) -> dict[str, Any]:
         return asdict(self)

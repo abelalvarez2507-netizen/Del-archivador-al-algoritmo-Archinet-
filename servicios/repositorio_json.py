@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+from typing import Any
 
 ARCHIVO_DATOS = Path(__file__).resolve().parents[1] / "datos" / "expedientes.json"
 
 
-def cargar(ruta: Path | None = None) -> list[dict[str, str]]:
+def cargar(ruta: Path | None = None) -> list[dict[str, Any]]:
     ruta = ruta or ARCHIVO_DATOS
     if not ruta.exists() or ruta.stat().st_size == 0:
         return []
@@ -15,7 +16,7 @@ def cargar(ruta: Path | None = None) -> list[dict[str, str]]:
     return contenido
 
 
-def guardar(expedientes: list[dict[str, str]], ruta: Path | None = None) -> None:
+def guardar(expedientes: list[dict[str, Any]], ruta: Path | None = None) -> None:
     ruta = ruta or ARCHIVO_DATOS
     ruta.parent.mkdir(parents=True, exist_ok=True)
     with ruta.open("w", encoding="utf-8") as archivo:

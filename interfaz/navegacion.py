@@ -37,10 +37,29 @@ def iniciar() -> None:
     }
     for pantalla in pantallas.values():
         pantalla.place(relx=0, rely=0, relwidth=1, relheight=1)
+    pantalla_actual = {"nombre": "Registro"}
+
     def mostrar(nombre: str) -> None:
+        pantalla_actual["nombre"] = nombre
         pantallas[nombre].tkraise()
         if nombre == "Listado":
             pantallas[nombre].actualizar()
+
+    def desplazar_rueda(evento: tk.Event) -> str:
+        pantallas[pantalla_actual["nombre"]].marco.desplazar_rueda(evento)
+        return "break"
+
+    def desplazar_abajo(_evento: tk.Event) -> str:
+        pantallas[pantalla_actual["nombre"]].marco.desplazar_unidad(1)
+        return "break"
+
+    def desplazar_arriba(_evento: tk.Event) -> str:
+        pantallas[pantalla_actual["nombre"]].marco.desplazar_unidad(-1)
+        return "break"
+
+    root.bind_all("<MouseWheel>", desplazar_rueda)
+    root.bind_all("<Button-4>", desplazar_arriba)
+    root.bind_all("<Button-5>", desplazar_abajo)
     for nombre in pantallas:
         ttk.Button(barra, text=nombre, command=lambda n=nombre: mostrar(n), width=18).pack(fill="x", pady=5)
     mostrar("Registro")
@@ -56,6 +75,7 @@ def configurar_estilos(root: tk.Tk) -> None:
     style.configure("HeaderHint.TLabel", background=estilos.AZUL, foreground="#dce8f4", font=("Segoe UI", 10))
     style.configure("Nav.TFrame", background="#e8eef5")
     style.configure("NavBrand.TLabel", background="#e8eef5", foreground=estilos.AZUL, font=("Segoe UI", 17, "bold"))
+    style.configure("Vertical.TScrollbar", background="#d7e1ec", troughcolor="#f3f6fa", arrowcolor=estilos.AZUL)
     style.configure("Card.TFrame", background=estilos.BLANCO)
     style.configure("Title.TLabel", background=estilos.BLANCO, foreground=estilos.TEXTO, font=("Segoe UI", 17, "bold"))
     style.configure("Hint.TLabel", background=estilos.BLANCO, foreground=estilos.SUAVE, font=("Segoe UI", 10))
