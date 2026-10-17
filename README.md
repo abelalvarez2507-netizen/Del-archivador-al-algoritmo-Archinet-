@@ -7,13 +7,16 @@ ArchiNet es una aplicación de escritorio académica desarrollada en Python para
 ## 1. Funcionalidades
 
 - Registro de expedientes con código, nombre completo, tipo y número de documento de identidad, documento presentado, asunto y fecha de recepción.
-- Validación de campos obligatorios, tipos de documento permitidos, fecha válida y códigos duplicados.
+- Código de expediente asignado automáticamente: `EXP001`, `EXP002` y siguientes.
+- Códigos de documento por bloque, con numeración independiente: Carta (`BOG001`), Solicitud (`BEN001`) y Formulario (`ARD001`). Para «Otro», se toman las primeras tres letras del tipo especificado y se agrega el siguiente número.
+- Validación de DNI de 8 dígitos, carné de extranjería de 9 dígitos y pasaporte alfanumérico de 6 a 9 caracteres.
+- Validación de campos obligatorios, tipos permitidos y fecha válida.
 - Búsqueda de expedientes por código.
 - Consulta de expedientes en una lista ordenada por código.
 - Almacenamiento local en JSON con codificación UTF-8 para conservar tildes y otros caracteres.
 - Interfaz gráfica organizada en las secciones Registro, Búsqueda y Listado.
 
-La fecha de recepción se ingresa en formato `AAAA-MM-DD`. Los tipos de identidad disponibles son DNI, carné de extranjería y pasaporte. Los tipos de documento presentado son solicitud, carta, formulario y otro.
+La fecha de recepción se ingresa en formato `AAAA-MM-DD`. Los tipos de identidad disponibles son DNI, carné de extranjería y pasaporte. Para «Otro», el código se forma con las primeras tres letras del tipo especificado, sin contar tildes, más una numeración de tres o más dígitos.
 
 ## 2. Arquitectura
 
@@ -33,6 +36,7 @@ ArchiNet/
 ├── servicios/
 │   ├── validaciones.py
 │   ├── operaciones_listas.py
+│   ├── generador_codigos.py
 │   ├── servicio_expedientes.py
 │   └── repositorio_json.py
 ├── datos/

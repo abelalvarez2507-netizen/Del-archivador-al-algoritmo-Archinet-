@@ -13,7 +13,7 @@ class PantallaRegistro(ttk.Frame):
         self.servicio = servicio
         self.variables = {nombre: tk.StringVar() for nombre in (
             "codigo", "nombre_completo", "tipo_documento_identidad", "numero_documento",
-            "tipo_documento_presentado", "asunto", "fecha_recepcion",
+            "tipo_documento_presentado", "tipo_documento_otro", "codigo_documento", "asunto", "fecha_recepcion",
         )}
         tarjeta = ttk.Frame(self, style="Card.TFrame", padding=26)
         tarjeta.pack(fill="both", expand=True)
@@ -22,19 +22,23 @@ class PantallaRegistro(ttk.Frame):
         formulario = ttk.Frame(tarjeta, style="Card.TFrame")
         formulario.pack(fill="x")
         formulario.columnconfigure(1, weight=1)
-        filas = [
-            ("codigo", "Código"), ("nombre_completo", "Nombre completo"),
-            ("tipo_documento_identidad", "Tipo de identidad"), ("numero_documento", "N.º de documento"),
-            ("tipo_documento_presentado", "Documento presentado"), ("asunto", "Asunto"),
-            ("fecha_recepcion", "Fecha de recepción (AAAA-MM-DD)"),
-        ]
-        for indice, (clave, etiqueta) in enumerate(filas):
-            if clave == "tipo_documento_identidad":
-                campos.seleccion(formulario, indice, etiqueta, self.variables[clave], TIPOS_IDENTIDAD)
-            elif clave == "tipo_documento_presentado":
-                campos.seleccion(formulario, indice, etiqueta, self.variables[clave], TIPOS_PRESENTADO)
-            else:
-                campos.entrada(formulario, indice, etiqueta, self.variables[clave])
+        self._fila_codigo(formulario, 0, "Código de expediente", "codigo")
+        campos.entrada(formulario, 1, "Nombre completo", self.variables["nombre_completo"])
+        campos.seleccion(formulario, 2, "Tipo de identidad", self.variables["tipo_documento_identidad"], TIPOS_IDENTIDAD)
+        campos.entrada_identidad(formulario, 3, "N.º de documento", self.variables["numero_documento"], self.variables["tipo_documento_identidad"])
+        campos.seleccion(formulario, 4, "Documento presentado", self.variables["tipo_documento_presentado"], TIPOS_PRESENTADO)
+        self.etiqueta_otro = ttk.Label(formulario, text="Especifica el documento")
+        self.etiqueta_otro.grid(row=5, column=0, sticky="w", padx=(0, 16), pady=7)
+        self.entrada_otro = ttk.Entry(formulario, textvariable=self.variables["tipo_documento_otro"], width=38)
+        self.entrada_otro.grid(row=5, column=1, sticky="ew", pady=7)
+        self._fila_codigo(formulario, 6, "Código de documento", "codigo_documento")
+        campos.entrada(formulario, 7, "Asunto", self.variables["asunto"])
+        campos.entrada(formulario, 8, "Fecha de recepción (AAAA-MM-DD)", self.variables["fecha_recepcion"])
+        self.variables["tipo_documento_identidad"].trace_add("write", self._tipo_identidad_cambio)
+        self.variables["tipo_documento_presentado"].trace_add("write", self._actualizar_codigos)
+        self.variables["tipo_documento_otro"].trace_add("write", self._actualizar_codigos)
+        self._tipo_identidad_cambio()
+        self._actualizar_codigos()
         pie = ttk.Frame(tarjeta, style="Card.TFrame")
         pie.pack(fill="x", pady=(22, 0))
         ttk.Button(pie, text="Limpiar", command=self.limpiar).pack(side="right", padx=(8, 0))
@@ -43,10 +47,44 @@ class PantallaRegistro(ttk.Frame):
     def limpiar(self) -> None:
         for variable in self.variables.values():
             variable.set("")
+        self.entrada_otro.grid_remove()
+        self.etiqueta_otro.grid_remove()
+
+    def _fila_codigo(self, contenedor: ttk.Frame, fila: int, etiqueta: str, clave: str) -> None:
+        ttk.Label(contenedor, text=etiqueta).grid(row=fila, column=0, sticky="w", padx=(0, 16), pady=7)
+        ttk.Entry(contenedor, textvariable=self.variables[clave], state="readonly", width=38).grid(row=fila, column=1, sticky="ew", pady=7)
+
+    def _tipo_identidad_cambio(self, *_args) -> None:
+        tipo = self.variables["tipo_documento_identidad"].get()
+        numero = self.variables["numero_documento"].get()
+        maximo = 8 if tipo == "DNI" else 9
+        if len(numero) > maximo:
+            self.variables["numero_documento"].set("")
+        elif tipo in ("DNI", "Carné de extranjería") and numero and not (numero.isascii() and numero.isdigit()):
+            self.variables["numero_documento"].set("")
+        elif tipo == "Pasaporte" and numero and not numero.isalnum():
+            self.variables["numero_documento"].set("")
+
+    def _actualizar_codigos(self, *_args) -> None:
+        tipo = self.variables["tipo_documento_presentado"].get()
+        otro = self.variables["tipo_documento_otro"].get()
+        if tipo == "Otro":
+            self.etiqueta_otro.grid()
+            self.entrada_otro.grid()
+        else:
+            self.etiqueta_otro.grid_remove()
+            self.entrada_otro.grid_remove()
+        try:
+            expediente, documento = self.servicio.codigos_siguientes(tipo, otro)
+        except ValueError:
+            expediente, documento = self.servicio.codigos_siguientes("Carta")[0], ""
+        self.variables["codigo"].set(expediente)
+        self.variables["codigo_documento"].set(documento)
 
     def registrar(self) -> None:
         try:
-            self.servicio.registrar({k: v.get() for k, v in self.variables.items()})
+            datos = {k: v.get() for k, v in self.variables.items()}
+            self.servicio.registrar(datos)
         except (ValueError, OSError) as error:
             mensajes.error(str(error))
             return

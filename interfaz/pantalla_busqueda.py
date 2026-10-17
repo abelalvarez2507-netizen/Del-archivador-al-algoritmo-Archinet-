@@ -27,9 +27,9 @@ class PantallaBusqueda(ttk.Frame):
             self.resultado.configure(text="No se encontró un expediente con ese código.")
             return
         etiquetas = {
-            "codigo": "Código", "nombre_completo": "Nombre completo",
+            "codigo": "Código de expediente", "codigo_documento": "Código de documento", "nombre_completo": "Nombre completo",
             "tipo_documento_identidad": "Tipo de identidad", "numero_documento": "N.º de documento",
-            "tipo_documento_presentado": "Documento presentado", "asunto": "Asunto",
+            "tipo_documento_presentado": "Tipo de documento presentado", "tipo_documento_otro": "Detalle del documento", "asunto": "Asunto",
             "fecha_recepcion": "Fecha de recepción",
         }
-        self.resultado.configure(text="\n".join(f"{etiquetas[k]}:  {v}" for k, v in expediente.items()))
+        self.resultado.configure(text="\n".join(f"{etiquetas[k]}:  {v}" for k, v in expediente.items() if v))
