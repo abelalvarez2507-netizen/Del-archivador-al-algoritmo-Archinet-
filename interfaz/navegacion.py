@@ -18,13 +18,17 @@ def iniciar() -> None:
     servicio = ServicioExpedientes()
     principal = ttk.Frame(root, style="App.TFrame")
     principal.pack(fill="both", expand=True)
-    encabezado = ttk.Frame(principal, style="Header.TFrame", padding=(30, 22))
+    barra = ttk.Frame(principal, style="Nav.TFrame", padding=(14, 18), width=180)
+    barra.pack(side="left", fill="y")
+    barra.pack_propagate(False)
+    ttk.Label(barra, text="ArchiNet", style="NavBrand.TLabel").pack(anchor="w", pady=(2, 22))
+    area = ttk.Frame(principal, style="App.TFrame")
+    area.pack(side="left", fill="both", expand=True)
+    encabezado = ttk.Frame(area, style="Header.TFrame", padding=(30, 22))
     encabezado.pack(fill="x")
     ttk.Label(encabezado, text="ArchiNet", style="Brand.TLabel").pack(anchor="w")
     ttk.Label(encabezado, text="Gestión y consulta de expedientes", style="HeaderHint.TLabel").pack(anchor="w", pady=(3, 0))
-    barra = ttk.Frame(principal, style="Nav.TFrame", padding=(24, 10))
-    barra.pack(fill="x")
-    zona = ttk.Frame(principal, style="App.TFrame")
+    zona = ttk.Frame(area, style="App.TFrame")
     zona.pack(fill="both", expand=True)
     pantallas = {
         "Registro": PantallaRegistro(zona, servicio),
@@ -38,7 +42,7 @@ def iniciar() -> None:
         if nombre == "Listado":
             pantallas[nombre].actualizar()
     for nombre in pantallas:
-        ttk.Button(barra, text=nombre, command=lambda n=nombre: mostrar(n)).pack(side="left", padx=(0, 8))
+        ttk.Button(barra, text=nombre, command=lambda n=nombre: mostrar(n), width=18).pack(fill="x", pady=5)
     mostrar("Registro")
     root.mainloop()
 
@@ -51,6 +55,7 @@ def configurar_estilos(root: tk.Tk) -> None:
     style.configure("Brand.TLabel", background=estilos.AZUL, foreground="white", font=("Segoe UI", 21, "bold"))
     style.configure("HeaderHint.TLabel", background=estilos.AZUL, foreground="#dce8f4", font=("Segoe UI", 10))
     style.configure("Nav.TFrame", background="#e8eef5")
+    style.configure("NavBrand.TLabel", background="#e8eef5", foreground=estilos.AZUL, font=("Segoe UI", 17, "bold"))
     style.configure("Card.TFrame", background=estilos.BLANCO)
     style.configure("Title.TLabel", background=estilos.BLANCO, foreground=estilos.TEXTO, font=("Segoe UI", 17, "bold"))
     style.configure("Hint.TLabel", background=estilos.BLANCO, foreground=estilos.SUAVE, font=("Segoe UI", 10))

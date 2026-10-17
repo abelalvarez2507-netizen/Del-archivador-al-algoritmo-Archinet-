@@ -14,9 +14,9 @@ class PantallaListado(ttk.Frame):
         encabezado.pack(fill="x", pady=(0, 16))
         ttk.Label(encabezado, text="Expedientes", style="Title.TLabel").pack(side="left")
         ttk.Button(encabezado, text="Actualizar", command=self.actualizar).pack(side="right")
-        columnas = ("codigo", "codigo_documento", "nombre", "tipo", "asunto", "fecha")
+        columnas = ("codigo", "codigo_paciente", "codigo_documento", "nombre", "tipo", "fecha", "hora")
         self.tabla = ttk.Treeview(tarjeta, columns=columnas, show="headings", height=14)
-        for columna, titulo, ancho in zip(columnas, ("Expediente", "Documento", "Nombre completo", "Tipo", "Asunto", "Recepción"), (100, 100, 190, 130, 190, 100)):
+        for columna, titulo, ancho in zip(columnas, ("Expediente", "Paciente", "Documento", "Nombre", "Tipo", "Fecha", "Hora"), (85, 80, 85, 145, 105, 85, 70)):
             self.tabla.heading(columna, text=titulo)
             self.tabla.column(columna, width=ancho, anchor="w")
         self.tabla.pack(fill="both", expand=True)
@@ -26,4 +26,4 @@ class PantallaListado(ttk.Frame):
         self.tabla.delete(*self.tabla.get_children())
         for e in self.servicio.listar_ordenados():
             tipo = e.get("tipo_documento_otro") or e["tipo_documento_presentado"]
-            self.tabla.insert("", "end", values=(e["codigo"], e.get("codigo_documento", ""), e["nombre_completo"], tipo, e["asunto"], e["fecha_recepcion"]))
+            self.tabla.insert("", "end", values=(e["codigo"], e.get("codigo_paciente", ""), e.get("codigo_documento", ""), e["nombre_completo"], tipo, e["fecha_recepcion"], e.get("hora_recepcion", "")))

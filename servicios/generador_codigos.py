@@ -33,3 +33,16 @@ def generar_codigos(expedientes: list[dict[str, str]], tipo_documento: str, otro
         raise ValueError("Selecciona un tipo de documento presentado válido.")
     codigos_documento = [e.get("codigo_documento", "") for e in expedientes]
     return codigo_expediente, siguiente_codigo(codigos_documento, prefijo)
+
+
+def codigo_paciente_para(expedientes: list[dict[str, str]], tipo_identidad: str, numero: str) -> str:
+    if not tipo_identidad or not numero:
+        return ""
+    identidad = numero.strip().casefold()
+    for expediente in expedientes:
+        if (expediente.get("tipo_documento_identidad") == tipo_identidad
+                and expediente.get("numero_documento", "").strip().casefold() == identidad
+                and expediente.get("codigo_paciente")):
+            return expediente["codigo_paciente"]
+    codigos = [e.get("codigo_paciente", "") for e in expedientes]
+    return siguiente_codigo(codigos, "PAC")

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 import re
 
 TIPOS_IDENTIDAD = ("DNI", "Carné de extranjería", "Pasaporte")
@@ -7,7 +7,7 @@ TIPOS_PRESENTADO = ("Solicitud", "Carta", "Formulario", "Otro")
 
 def validar(datos: dict[str, str]) -> None:
     campos = ("nombre_completo", "tipo_documento_identidad", "numero_documento",
-              "tipo_documento_presentado", "asunto", "fecha_recepcion")
+              "tipo_documento_presentado", "asunto", "fecha_recepcion", "hora_recepcion")
     if any(not datos.get(campo, "").strip() for campo in campos):
         raise ValueError("Completa todos los campos del expediente.")
     if datos["tipo_documento_identidad"] not in TIPOS_IDENTIDAD:
@@ -24,7 +24,14 @@ def validar(datos: dict[str, str]) -> None:
         raise ValueError("El carné de extranjería debe tener exactamente 9 dígitos.")
     if tipo_identidad == "Pasaporte" and (not re.fullmatch(r"[A-Za-z0-9]{6,9}", numero)):
         raise ValueError("El pasaporte debe tener entre 6 y 9 letras o números.")
+    fecha_texto = datos["fecha_recepcion"].strip()
+    hora_texto = datos["hora_recepcion"].strip()
+    if not re.fullmatch(r"\d{2}/\d{2}/\d{4}", fecha_texto) or not re.fullmatch(r"\d{2}:\d{2}:\d{2}", hora_texto):
+        raise ValueError("La fecha debe usar DD/MM/AAAA y la hora HH:MM:SS.")
     try:
-        date.fromisoformat(datos["fecha_recepcion"].strip())
+        fecha = datetime.strptime(fecha_texto, "%d/%m/%Y").date()
+        datetime.strptime(hora_texto, "%H:%M:%S")
     except ValueError as exc:
-        raise ValueError("La fecha debe ser válida y usar el formato AAAA-MM-DD.") from exc
+        raise ValueError("La fecha debe usar DD/MM/AAAA y la hora HH:MM:SS.") from exc
+    if fecha != date.today():
+        raise ValueError("La fecha de recepción debe ser la fecha actual.")
