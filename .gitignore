@@ -3,6 +3,11 @@ venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
-# El JSON local puede contener datos personales.
 datos/expedientes.json
 datos/adjuntos/
+datos/configuracion.json
+datos/borradores.json
+datos/cargos/
+datos/foliacion/
+datos/relaciones_despacho/
+datos/cargos_derivacion/

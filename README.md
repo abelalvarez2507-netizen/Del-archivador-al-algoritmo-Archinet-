@@ -2,83 +2,78 @@
 
 ## Sistema de gestión de expedientes
 
-ArchiNet es una aplicación de escritorio académica desarrollada en Python para registrar, buscar y consultar expedientes. Utiliza Tkinter para la interfaz gráfica y JSON para guardar la información.
+ArchiNet es una aplicación de escritorio en Python y Tkinter. Guarda los registros en archivos JSON locales y organiza el recorrido de cada expediente desde la recepción hasta su derivación y seguimiento.
 
-## 1. Funcionalidades
+## Funciones
 
-- Registro de expedientes con código automático, datos de identidad, tipo de documento, asunto y recepción.
-- Códigos independientes por bloque: Carta (`BOG001`), Solicitud (`BEN001`), Formulario (`ARD001`) y prefijo personalizado para «Otro».
-- Validación de DNI de 8 dígitos, carné de extranjería de 9 dígitos y pasaporte alfanumérico de 6 a 9 caracteres.
-- Fecha y hora de recepción automáticas, en formatos `DD/MM/AAAA` y `HH:MM:SS`.
-- Adjuntar archivos Word, PDF e imágenes de documentos escaneados.
-- Búsqueda por código de expediente y listado ordenado.
-- Barra vertical a la derecha en cada pantalla, con desplazamiento desde la barra, rueda y touchpad.
-- Almacenamiento JSON en UTF-8.
+- Registro de remitente, identidad, documento, asunto y archivos adjuntos.
+- Códigos automáticos consecutivos de expediente y de tipo documental: Carta (`BOG001`), Solicitud (`BEN001`), Formulario (`ARD001`) y prefijo de tres letras para «Otro».
+- Validación de DNI, carné de extranjería y pasaporte.
+- Fecha y hora automáticas al registrar.
+- Cotejo de modalidad, folios, anexos, firma, legibilidad, integridad, responsable, observaciones y excepciones autorizadas.
+- Guardado y recuperación de recepciones observadas.
+- Ficha PDF y confirmación de foliación, con control de folios verificados.
+- Cargo PDF de recepción, con opciones para abrir e imprimirlo.
+- Clasificación por unidad orgánica, trámite, categoría y prioridad.
+- Relación PDF de despacho por unidad.
+- Derivaciones físicas o digitales, cargos internos y registro de entrega o devolución.
+- Búsqueda, seguimiento, historial de movimientos, alertas y resumen de actividad.
+- Configuración editable de la entidad, unidades y sugerencias de destino.
+- Navegación persistente y desplazamiento vertical en todas las pantallas.
 
-Los archivos adjuntos se copian a `datos/adjuntos/`, dentro de una carpeta para cada expediente. Se admiten DOC, DOCX, ODT, RTF, PDF, PNG, JPG, JPEG, TIF, TIFF, BMP, GIF y WEBP.
+Las derivaciones digitales se guardan como movimientos locales. ArchiNet no realiza transferencias electrónicas.
 
-## 2. Arquitectura
+## Archivos adjuntos y PDF
 
-```text
-ArchiNet/
-├── interfaz/
-│   ├── pantalla_registro.py
-│   ├── pantalla_busqueda.py
-│   ├── pantalla_listado.py
-│   ├── desplazamiento.py
-│   ├── campos.py
-│   ├── estilos.py
-│   └── navegacion.py
-├── componentes/
-│   └── mensajes.py
-├── modelos/
-│   └── expediente.py
-├── servicios/
-│   ├── validaciones.py
-│   ├── operaciones_listas.py
-│   ├── generador_codigos.py
-│   ├── archivos_adjuntos.py
-│   ├── servicio_expedientes.py
-│   └── repositorio_json.py
-├── pruebas/
-├── datos/
-│   ├── expedientes.json
-│   └── adjuntos/
-├── main.py
-├── requirements.txt
-└── README.md
-```
+Se admiten DOC, DOCX, ODT, RTF, PDF, PNG, JPG, JPEG, TIF, TIFF, BMP, GIF y WEBP. Los archivos se copian dentro de `datos/adjuntos/`, separados por expediente. Las fichas, cargos y relaciones se guardan en subcarpetas de `datos/`.
 
-La interfaz solicita las operaciones al servicio de expedientes. El servicio valida los datos, genera códigos y coordina el guardado JSON y la copia de archivos adjuntos.
+## Instalación y ejecución
 
-## 3. Instalación
-
-Se recomienda Python 3.10 o posterior con Tkinter disponible. No se requieren dependencias externas para ejecutar la aplicación.
+Se necesita Python 3.10 o posterior con Tkinter disponible. ArchiNet no requiere paquetes externos para funcionar.
 
 ```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
 python -c "import tkinter; print('Tkinter disponible')"
-```
-
-## 4. Ejecución
-
-Desde la carpeta raíz del proyecto, ejecuta:
-
-```powershell
 python main.py
 ```
 
-La fecha y la hora se asignan automáticamente al registrar. No se pueden editar ni seleccionar fechas pasadas o futuras.
+## Datos locales
 
-## 5. Datos locales
+- `datos/expedientes.json`: expedientes y su historial.
+- `datos/borradores.json`: recepciones observadas pendientes.
+- `datos/configuracion.json`: entidad, unidades y destinos sugeridos.
+- `datos/adjuntos/`: archivos recibidos.
+- `datos/cargos/`, `datos/foliacion/`, `datos/cargos_derivacion/` y `datos/relaciones_despacho/`: documentos PDF generados.
 
-`datos/expedientes.json` y `datos/adjuntos/` pueden contener información personal; están excluidos de Git mediante `.gitignore`.
+Estos datos permanecen en el equipo y pueden contener información personal.
 
-## 6. Pruebas
+## Pruebas
 
-Con `pytest` instalado en el entorno de desarrollo, ejecuta:
+Las pruebas de desarrollo usan `pytest`:
 
 ```powershell
 python -m pytest pruebas/
+```
+
+## Estructura
+
+```text
+ArchiNet/
+├── componentes/
+├── datos/
+├── interfaz/
+│   ├── pantalla_busqueda.py
+│   ├── pantalla_clasificacion.py
+│   ├── pantalla_configuracion.py
+│   ├── pantalla_derivaciones.py
+│   ├── pantalla_foliacion.py
+│   ├── pantalla_historial.py
+│   ├── pantalla_inicio.py
+│   ├── pantalla_listado.py
+│   ├── pantalla_registro.py
+│   └── navegacion.py
+├── modelos/
+├── pruebas/
+├── servicios/
+├── main.py
+└── README.md
 ```

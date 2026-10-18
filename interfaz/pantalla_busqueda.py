@@ -36,6 +36,7 @@ class PantallaBusqueda(ttk.Frame):
             "tipo_documento_identidad": "Tipo de identidad", "numero_documento": "N.º de documento",
             "tipo_documento_presentado": "Tipo de documento presentado", "tipo_documento_otro": "Detalle del documento", "asunto": "Asunto",
             "fecha_recepcion": "Fecha de recepción", "hora_recepcion": "Hora de recepción", "archivos_adjuntos": "Archivos adjuntos",
+            "estado": "Estado actual",
         }
         bloques = []
         for registro in expedientes:
@@ -44,5 +45,23 @@ class PantallaBusqueda(ttk.Frame):
                 if valor and clave in etiquetas:
                     texto = ", ".join(Path(archivo).name for archivo in valor) if clave == "archivos_adjuntos" else valor
                     valores.append(f"{etiquetas[clave]}:  {texto}")
+            cotejo = registro.get("cotejo", {})
+            foliacion = registro.get("foliacion", {})
+            cargo = registro.get("cargo", {})
+            clasificacion = registro.get("clasificacion", {})
+            valores.extend((
+                f"Cotejo: {cotejo.get('estado', 'Pendiente')} | modalidad {cotejo.get('modalidad', '')} | folios {cotejo.get('folios_verificados', 0)} | anexos {cotejo.get('cantidad_anexos', 0)}",
+                f"Responsable de recepción: {cotejo.get('responsable', '')}",
+                f"Observaciones: {cotejo.get('observaciones') or 'Ninguna'}",
+                f"Foliación: {foliacion.get('estado', 'Pendiente')} | rango {foliacion.get('rango', '')} | responsable {foliacion.get('responsable', '')}",
+                f"Cargo de recepción: {'Emitido' if cargo.get('emitido') else 'Pendiente'}",
+                f"Clasificación: {clasificacion.get('estado', 'Pendiente')} | unidad {clasificacion.get('unidad', '')} | trámite {clasificacion.get('tramite', '')} | categoría {clasificacion.get('categoria', '')} | prioridad {clasificacion.get('prioridad', '')}",
+            ))
+            for movimiento in registro.get("derivaciones", []):
+                valores.append(f"Derivación {movimiento.get('fecha', '')} {movimiento.get('hora', '')}: {movimiento.get('unidad', '')} | {movimiento.get('estado', '')} | recibe {movimiento.get('receptor', '')}")
+                if movimiento.get("nota_transferencia"):
+                    valores.append(movimiento["nota_transferencia"])
+            for evento in registro.get("historial", []):
+                valores.append(f"Historial {evento.get('fecha', '')} {evento.get('hora', '')}: {evento.get('accion', '')} — {evento.get('responsable', '')} — {evento.get('detalle', '')}")
             bloques.append("\n".join(valores))
         self.resultado.configure(text="\n\n".join(bloques))

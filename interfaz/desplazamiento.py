@@ -24,8 +24,10 @@ class MarcoDesplazable(ttk.Frame):
     def desplazar_rueda(self, evento: tk.Event) -> None:
         delta = getattr(evento, "delta", 0)
         if delta:
-            primero, _ultimo = self.canvas.yview()
-            self.canvas.yview_moveto(max(0, min(1, primero - delta / 1200)))
+            unidades = int(-delta / 120) if abs(delta) >= 120 else -int(delta)
+            if unidades == 0:
+                unidades = -1 if delta > 0 else 1
+            self.canvas.yview_scroll(unidades, "units")
 
     def desplazar_unidad(self, unidades: int) -> None:
         self.canvas.yview_scroll(unidades, "units")

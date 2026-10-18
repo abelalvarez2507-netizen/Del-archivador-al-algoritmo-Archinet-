@@ -35,3 +35,47 @@ def validar(datos: dict[str, str]) -> None:
         raise ValueError("La fecha debe usar DD/MM/AAAA y la hora HH:MM:SS.") from exc
     if fecha != date.today():
         raise ValueError("La fecha de recepción debe ser la fecha actual.")
+
+
+def validar_cotejo(cotejo: dict) -> None:
+    if not isinstance(cotejo, dict):
+        raise ValueError("Completa los datos del cotejo de recepción.")
+    if cotejo.get("modalidad") not in ("Física", "Digital"):
+        raise ValueError("Selecciona la modalidad física o digital.")
+    try:
+        declarados = int(cotejo.get("folios_declarados", -1))
+        verificados = int(cotejo.get("folios_verificados", -1))
+        anexos = int(cotejo.get("cantidad_anexos", 0))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Las cantidades de folios y anexos deben ser números enteros.") from exc
+    if min(declarados, verificados, anexos) < 0:
+        raise ValueError("Las cantidades de folios y anexos no pueden ser negativas.")
+    if not cotejo.get("responsable", "").strip():
+        raise ValueError("Indica quién realizó el cotejo.")
+    if cotejo.get("firma") not in ("Sí", "No", "No corresponde"):
+        raise ValueError("Indica si el documento presenta firma.")
+    descripciones = cotejo.get("anexos", [])
+    if not isinstance(descripciones, list):
+        descripciones = []
+    problemas = []
+    if cotejo.get("presenta_anexos") and (anexos == 0 or len(descripciones) != anexos or any(not x.strip() for x in descripciones)):
+        problemas.append("completa la descripción de cada anexo")
+    if cotejo.get("presenta_anexos") and anexos == 0:
+        problemas.append("indica cuántos anexos se recibieron")
+    if not cotejo.get("presenta_anexos") and anexos:
+        problemas.append("indica si realmente se recibieron anexos")
+    if not cotejo.get("legible"):
+        problemas.append("verifica la legibilidad")
+    if not cotejo.get("completo"):
+        problemas.append("verifica que el documento esté completo")
+    if cotejo.get("firma") == "No":
+        problemas.append("verifica la firma")
+    if declarados != verificados:
+        if not cotejo.get("observaciones", "").strip():
+            problemas.append("explica la diferencia entre folios declarados y verificados")
+        if not cotejo.get("excepcion_autorizada"):
+            problemas.append("registra la autorización para aceptar folios distintos")
+    if problemas:
+        autorizado = cotejo.get("excepcion_autorizada") and cotejo.get("motivo_excepcion", "").strip()
+        if not autorizado:
+            raise ValueError("Cotejo observado: " + "; ".join(problemas) + ". Registra una observación o una excepción autorizada.")

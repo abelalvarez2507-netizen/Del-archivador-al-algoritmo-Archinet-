@@ -3,6 +3,12 @@ from tkinter import ttk
 
 from interfaz import estilos
 from interfaz.pantalla_busqueda import PantallaBusqueda
+from interfaz.pantalla_clasificacion import PantallaClasificacion
+from interfaz.pantalla_configuracion import PantallaConfiguracion
+from interfaz.pantalla_derivaciones import PantallaDerivaciones
+from interfaz.pantalla_foliacion import PantallaFoliacion
+from interfaz.pantalla_historial import PantallaHistorial
+from interfaz.pantalla_inicio import PantallaInicio
 from interfaz.pantalla_listado import PantallaListado
 from interfaz.pantalla_registro import PantallaRegistro
 from servicios.servicio_expedientes import ServicioExpedientes
@@ -11,14 +17,14 @@ from servicios.servicio_expedientes import ServicioExpedientes
 def iniciar() -> None:
     root = tk.Tk()
     root.title("ArchiNet | Gestión de expedientes")
-    root.geometry("1020x700")
-    root.minsize(820, 600)
+    root.geometry("1120x760")
+    root.minsize(900, 650)
     root.configure(bg=estilos.FONDO)
     configurar_estilos(root)
     servicio = ServicioExpedientes()
     principal = ttk.Frame(root, style="App.TFrame")
     principal.pack(fill="both", expand=True)
-    barra = ttk.Frame(principal, style="Nav.TFrame", padding=(14, 18), width=180)
+    barra = ttk.Frame(principal, style="Nav.TFrame", padding=(12, 18), width=205)
     barra.pack(side="left", fill="y")
     barra.pack_propagate(False)
     ttk.Label(barra, text="ArchiNet", style="NavBrand.TLabel").pack(anchor="w", pady=(2, 22))
@@ -31,19 +37,29 @@ def iniciar() -> None:
     zona = ttk.Frame(area, style="App.TFrame")
     zona.pack(fill="both", expand=True)
     pantallas = {
-        "Registro": PantallaRegistro(zona, servicio),
-        "Búsqueda": PantallaBusqueda(zona, servicio),
-        "Listado": PantallaListado(zona, servicio),
+        "Inicio": PantallaInicio(zona, servicio),
+        "Recepción y registro": PantallaRegistro(zona, servicio),
+        "Foliación y cargos": PantallaFoliacion(zona, servicio),
+        "Búsqueda y seguimiento": PantallaBusqueda(zona, servicio),
+        "Clasificación y despacho": PantallaClasificacion(zona, servicio),
+        "Derivaciones": PantallaDerivaciones(zona, servicio),
+        "Historial y reportes": PantallaHistorial(zona, servicio),
+        "Expedientes": PantallaListado(zona, servicio),
+        "Configuración": PantallaConfiguracion(zona),
     }
     for pantalla in pantallas.values():
         pantalla.place(relx=0, rely=0, relwidth=1, relheight=1)
-    pantalla_actual = {"nombre": "Registro"}
+    pantalla_actual = {"nombre": "Inicio"}
 
     def mostrar(nombre: str) -> None:
         pantalla_actual["nombre"] = nombre
-        pantallas[nombre].tkraise()
-        if nombre == "Listado":
-            pantallas[nombre].actualizar()
+        pantalla = pantallas[nombre]
+        pantalla.tkraise()
+        actualizar = getattr(pantalla, "actualizar", None)
+        if callable(actualizar):
+            actualizar()
+        if nombre == "Configuración":
+            pantalla.cargar()
 
     def desplazar_rueda(evento: tk.Event) -> str:
         pantallas[pantalla_actual["nombre"]].marco.desplazar_rueda(evento)
@@ -61,8 +77,8 @@ def iniciar() -> None:
     root.bind_all("<Button-4>", desplazar_arriba)
     root.bind_all("<Button-5>", desplazar_abajo)
     for nombre in pantallas:
-        ttk.Button(barra, text=nombre, command=lambda n=nombre: mostrar(n), width=18).pack(fill="x", pady=5)
-    mostrar("Registro")
+        ttk.Button(barra, text=nombre, command=lambda n=nombre: mostrar(n), width=24).pack(fill="x", pady=3)
+    mostrar("Inicio")
     root.mainloop()
 
 
@@ -81,7 +97,7 @@ def configurar_estilos(root: tk.Tk) -> None:
     style.configure("Hint.TLabel", background=estilos.BLANCO, foreground=estilos.SUAVE, font=("Segoe UI", 10))
     style.configure("Result.TLabel", background=estilos.BLANCO, foreground=estilos.TEXTO, font=("Segoe UI", 11), lineheight=24)
     style.configure("TLabel", font=("Segoe UI", 10), foreground=estilos.TEXTO)
-    style.configure("TButton", font=("Segoe UI", 10), padding=(13, 8))
+    style.configure("TButton", font=("Segoe UI", 9), padding=(9, 7))
     style.configure("Accent.TButton", background=estilos.AZUL, foreground="white")
     style.map("Accent.TButton", background=[("active", "#23649f")])
     style.configure("TEntry", padding=8)
